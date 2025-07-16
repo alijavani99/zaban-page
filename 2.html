@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>محاسبه قیمت کابینت</title>
+  <style>
+    body {
+      direction: rtl;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    table, th, td {
+      border: 1px solid #000;
+      border-collapse: collapse;
+      padding: 5px;
+    }
+    table {
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    input, select {
+      margin: 5px 0;
+      padding: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    th {
+      background-color: #eee;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      table, input, select {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>محاسبه قیمت کابینت</h2>
+
+  <label>قیمت ورق MDF سفید:</label>
+  <input type="number" id="basePrice" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+  <label>قیمت MDF رنگی:</label>
+  <input type="number" id="coloredMdfPrice" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+  <label>قیمت هایگلاس:</label>
+  <input type="number" id="highGlossPrice" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+  <label>قیمت صفحه کابینت:</label>
+  <input type="number" id="panelPrice" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+  <label>قیمت سه میل:</label>
+  <input type="number" id="threeMilPrice" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+  <label>درصد سود:</label>
+  <input type="number" id="profit" value="0" oninput="calculateMaterials(); saveToStorage()" /> <br />
+
+  <table id="materialTable">
+    <thead>
+      <tr>
+        <th>نام جنس</th>
+        <th>ضریب محاسبه (%)</th>
+        <th>قیمت</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>MDF سفید</td><td><input value="85" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>MDF رنگی</td><td><input value="40" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>هایگلاس</td><td><input value="60" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>صفحه</td><td><input value="35" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>سه میل</td><td><input value="50" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>موادمصرفی دیگر</td><td><input value="25" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>مزد برش</td><td><input value="6" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+      <tr><td>مزد مونتاژ</td><td><input value="16" oninput="calculateMaterials()" /></td><td class="price"></td></tr>
+    </tbody>
+  </table>
+
+  <p>قیمت یک متر کابینت MDF: <span id="mdfResult">0</span></p>
+  <p>قیمت یک متر کابینت هایگلاس: <span id="highGlossResult">0</span></p>
+
+  <hr />
+  <h3>محاسبه قیمت کابینت آشپزخانه</h3>
+
+  <label>نوع کابینت:</label>
+  <select id="cabinetType" onchange="calculateKitchen(); saveToStorage()">
+    <option value="mdf">MDF</option>
+    <option value="highGloss">هایگلاس</option>
+  </select>
+  <br />
+  <label>نوع دستگیره:</label>
+  <select id="handleType" onchange="calculateKitchen(); saveToStorage()">
+    <option value="normal">دستگیره دار</option>
+    <option value="hidden">بدون دستگیره</option>
+  </select>
+  <br />
+  <label>ارتفاع کابینت هوایی (سانتی‌متر):</label>
+  <input type="number" id="upperHeight" value="70" oninput="calculateKitchen(); saveToStorage()" /> <br />
+  <label>نوع کابینت هوایی:</label>
+  <select id="upperType" onchange="calculateKitchen(); saveToStorage()">
+    <option value="one">یک پله</option>
+    <option value="two">دو پله</option>
+  </select>
+  <br /><br />
+
+  <table id="kitchenTable">
+    <thead>
+      <tr>
+        <th>نام</th>
+        <th>ضریب</th>
+        <th>طول / تعداد</th>
+        <th>قیمت واحد</th>
+        <th>قیمت کل</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-factor="0.6"><td>زمینی</td><td class="factor">60%</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr data-factor="hoaii"><td>هوایی</td><td class="factor">محاسبه شود</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr data-factor="1.2"><td>اپن</td><td class="factor">90%</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr><td>سینک</td><td><input class="custom-factor" type="number" /></td><td><input class="length" type="number" /></td><td><input class="unit-price" /></td><td class="total-price"></td></tr>
+      <tr data-factor="1.8"><td>کمد ایستاده</td><td class="factor">180%</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr data-factor="drawer"><td>کشو</td><td>---</td><td><input class="length" type="number" /></td><td><input class="unit-price" /></td><td class="total-price"></td></tr>
+      <tr><td>طول صفحه بدون یونیت</td><td>---</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr><td>مساحت حجمی</td><td>---</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+      <tr><td>تاج و بدنه رنگی و درب‌ثابتی</td><td>---</td><td><input class="length" type="number" /></td><td><input class="unit-price" readonly /></td><td class="total-price"></td></tr>
+    </tbody>
+  </table>
+
+  <button onclick="calculateKitchen()">محاسبه</button>
+
+  <p>جمع کل: <span id="grandTotal">0</span></p>
+  <p>هزینه نصب (10٪): <span id="installCost">0</span></p>
+  <p><strong>جمع کل هزینه تولید و نصب: <span id="finalTotal">0</span></strong></p>
+
+  <script>
+    function formatPrice(num) {
+      return parseInt(num).toLocaleString('fa-IR');
+    }
+
+    let mdfTotal = 0;
+    let highGlossTotal = 0;
+
+    function calculateMaterials() {
+      const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
+      const coloredMdfPrice = parseFloat(document.getElementById('coloredMdfPrice').value) || 0;
+      const highGlossPrice = parseFloat(document.getElementById('highGlossPrice').value) || 0;
+      const panelPrice = parseFloat(document.getElementById('panelPrice').value) || 0;
+      const threeMilPrice = parseFloat(document.getElementById('threeMilPrice').value) || 0;
+      const profit = parseFloat(document.getElementById('profit').value) || 0;
+
+      const rows = document.querySelectorAll('#materialTable tbody tr');
+      mdfTotal = 0;
+      highGlossTotal = 0;
+
+      rows.forEach(row => {
+        const name = row.cells[0].textContent.trim();
+        const percent = parseFloat(row.cells[1].querySelector('input').value) || 0;
+        let unitBase = basePrice;
+
+        if (name === 'MDF رنگی') unitBase = coloredMdfPrice;
+        else if (name === 'هایگلاس') unitBase = highGlossPrice;
+        else if (name === 'صفحه') unitBase = panelPrice;
+        else if (name === 'سه میل') unitBase = threeMilPrice;
+
+        const price = unitBase * (percent / 100);
+        row.querySelector('.price').textContent = formatPrice(price);
+
+        if (name !== 'هایگلاس') mdfTotal += price;
+        if (name !== 'MDF رنگی') highGlossTotal += price;
+      });
+
+      mdfTotal += mdfTotal * (profit / 100);
+      highGlossTotal += highGlossTotal * (profit / 100);
+
+      document.getElementById('mdfResult').textContent = formatPrice(mdfTotal);
+      document.getElementById('highGlossResult').textContent = formatPrice(highGlossTotal);
+
+      calculateKitchen();
+    }
+
+    function calculateKitchen() {
+      const cabinetType = document.getElementById('cabinetType').value;
+      const handleType = document.getElementById('handleType').value;
+      const upperHeight = parseFloat(document.getElementById('upperHeight').value) || 70;
+      const upperType = document.getElementById('upperType').value;
+      const baseSheet = parseFloat(document.getElementById('basePrice').value) || 0;
+      const basePrice = cabinetType === 'mdf' ? mdfTotal : highGlossTotal;
+      const finalBasePrice = handleType === 'hidden' ? basePrice * 1.1 : basePrice;
+
+      let totalSum = 0;
+      let installBase = 0;
+      const rows = document.querySelectorAll('#kitchenTable tbody tr');
+
+      rows.forEach(row => {
+        let factor = parseFloat(row.dataset.factor);
+        const name = row.cells[0].textContent.trim();
+        const unitInput = row.querySelector('.unit-price');
+        const lengthInput = row.querySelector('.length');
+        const totalCell = row.querySelector('.total-price');
+
+        let unitPrice = 0;
+
+        if (row.dataset.factor === 'hoaii') {
+          if (upperType === 'two') {
+            factor = 0.8;
+            row.querySelector('.factor').textContent = '80%';
+          } else {
+            const extra = Math.max(0, upperHeight - 70);
+            factor = (40 + extra) / 100;
+            row.querySelector('.factor').textContent = formatPrice(factor * 100) + '%';
+          }
+          unitPrice = finalBasePrice * factor;
+        } else if (name === 'طول صفحه بدون یونیت') {
+          unitPrice = baseSheet * 0.35;
+        } else if (name === 'مساحت حجمی') {
+          unitPrice = (baseSheet / 6.4) * 1.1 * 2;
+        } else if (name === 'تاج و بدنه رنگی و درب‌ثابتی') {
+          unitPrice = (baseSheet / 6.4) * 1.5;
+        } else if (name === 'کشو' || name === 'سینک') {
+          unitPrice = parseFloat(unitInput.value) || 0;
+        } else {
+          const custom = row.querySelector('.custom-factor');
+          if (custom) factor = parseFloat(custom.value) / 100 || 0;
+          unitPrice = finalBasePrice * factor;
+        }
+
+        unitInput.value = formatPrice(unitPrice);
+        const len = parseFloat(lengthInput.value) || 0;
+        const total = unitPrice * len;
+        totalCell.textContent = formatPrice(total);
+        totalSum += total;
+
+        if (['زمینی', 'هوایی', 'کمد ایستاده', 'اپن', 'سینک'].includes(name)) {
+          installBase += total;
+        }
+      });
+
+      const installCost = installBase * 0.1;
+      const finalCost = totalSum + installCost;
+
+      document.getElementById('grandTotal').textContent = formatPrice(totalSum);
+      document.getElementById('installCost').textContent = formatPrice(installCost);
+      document.getElementById('finalTotal').textContent = formatPrice(finalCost);
+    }
+
+    function saveToStorage() {
+      const ids = ['basePrice', 'coloredMdfPrice', 'highGlossPrice', 'panelPrice', 'threeMilPrice', 'profit', 'cabinetType', 'handleType', 'upperHeight', 'upperType'];
+      ids.forEach(id => localStorage.setItem(id, document.getElementById(id).value));
+    }
+
+    function loadFromStorage() {
+      const ids = ['basePrice', 'coloredMdfPrice', 'highGlossPrice', 'panelPrice', 'threeMilPrice', 'profit', 'cabinetType', 'handleType', 'upperHeight', 'upperType'];
+      ids.forEach(id => {
+        if (localStorage.getItem(id)) {
+          document.getElementById(id).value = localStorage.getItem(id);
+        }
+      });
+    }
+
+    window.onload = function () {
+      loadFromStorage();
+      calculateMaterials();
+    };
+  </script>
+</body>
+</html>
