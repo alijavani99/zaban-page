@@ -1,1 +1,27 @@
 # zaban-page
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>زبانتو بخون!</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #fdf6e3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Tahoma', sans-serif;
+    }
+    h1 {
+      font-size: 5rem;
+      color: #d32f2f;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>زبانتو بخووووون</h1>
+</body>
+</html>
