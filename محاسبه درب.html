@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>محاسبه درب</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      direction: rtl;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    input, select, button {
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .side-by-side {
+      display: flex;
+      gap: 10px;
+    }
+    .side-by-side > div {
+      flex: 1;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #ddd;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+    .remove-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>محاسبه درب‌ها (نسخه موبایل)</h3>
+
+<label>کد مشتری (مثلاً s):</label>
+<input type="text" id="customerCode" placeholder="کد مشتری">
+
+<label>تغییر کلاف:</label>
+<div class="side-by-side">
+  <div>
+    <label>ارتفاع اتاقی:</label>
+    <input type="number" id="frameH_room" placeholder="مثلاً 1-" step="any">
+  </div>
+  <div>
+    <label>ارتفاع سرویس:</label>
+    <input type="number" id="frameH_bath" placeholder="مثلاً 0.5-" step="any">
+  </div>
+</div>
+<label>عرض:</label>
+<input type="number" id="frameW" placeholder="مثلاً 1.9+" step="any">
+
+<label>تغییر نهایی:</label>
+<div class="side-by-side">
+  <div>
+    <label>ارتفاع اتاقی:</label>
+    <input type="number" id="finalH_room" placeholder="مثلاً 0.5-" step="any">
+  </div>
+  <div>
+    <label>ارتفاع سرویس:</label>
+    <input type="number" id="finalH_bath" placeholder="مثلاً 0.5-" step="any">
+  </div>
+</div>
+<label>عرض:</label>
+<input type="number" id="finalW" placeholder="مثلاً  0.5-" step="any">
+
+<button class="btn" onclick="addDoor()">➕ افزودن درب</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>نوع درب</th>
+      <th>عرض</th>
+      <th>ارتفاع</th>
+      <th>حذف</th>
+    </tr>
+  </thead>
+  <tbody id="doorList"></tbody>
+</table>
+
+<button class="btn" onclick="calculate()">محاسبه</button>
+
+<div id="results"></div>
+
+<script>
+  let doorIndex = 1;
+
+  function addDoor() {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <select>
+          <option value="اتاقی">اتاقی</option>
+          <option value="حمام/سرویس">حمام/سرویس</option>
+        </select>
+      </td>
+      <td><input type="number" step="any" placeholder="عرض"></td>
+      <td><input type="number" step="any" placeholder="ارتفاع"></td>
+      <td><button class="remove-btn" onclick="this.closest('tr').remove()">❌</button></td>
+    `;
+    document.getElementById('doorList').appendChild(row);
+  }
+
+  function calculate() {
+    const code = document.getElementById('customerCode').value.trim().toLowerCase();
+
+    // تغییرات کلاف
+    const frameH_room = parseFloat(document.getElementById('frameH_room').value);
+    const frameH_bath = parseFloat(document.getElementById('frameH_bath').value);
+    const frameW = parseFloat(document.getElementById('frameW').value);
+
+    // تغییرات نهایی
+    const finalH_room = parseFloat(document.getElementById('finalH_room').value);
+    const finalH_bath = parseFloat(document.getElementById('finalH_bath').value);
+    const finalW = parseFloat(document.getElementById('finalW').value);
+
+    const rows = document.querySelectorAll('#doorList tr');
+    if (!code || isNaN(frameH_room) || isNaN(frameH_bath) || isNaN(finalH_room) || isNaN(finalH_bath) || isNaN(frameW) || isNaN(finalW)) {
+      alert("لطفاً همه فیلدهای تغییر را پر کنید.");
+      return;
+    }
+
+    let result = '<h4>نتیجه:</h4><table><tr><th>کد</th><th>نوع</th><th>اصلی</th><th>کلاف</th><th>نهایی</th></tr>';
+    let i = 1;
+
+    rows.forEach(row => {
+      const type = row.querySelector('select').value;
+      const width = parseFloat(row.querySelectorAll('input')[0].value);
+      const height = parseFloat(row.querySelectorAll('input')[1].value);
+
+      if (!isNaN(width) && !isNaN(height)) {
+        const id = code + i;
+
+        let frameH = type === "اتاقی" ? frameH_room : frameH_bath;
+        let finalH = type === "اتاقی" ? finalH_room : finalH_bath;
+
+        const frameWidth = (width + frameW).toFixed(1);
+        const frameHeight = (height + frameH).toFixed(1);
+        const finalWidth = (parseFloat(frameWidth) + finalW).toFixed(1);
+        const finalHeight = (parseFloat(frameHeight) + finalH).toFixed(1);
+
+        result += `
+          <tr>
+            <td>${id}</td>
+            <td>${type}</td>
+            <td>${width} × ${height}</td>
+            <td style="color:green">${frameWidth} × ${frameHeight}</td>
+            <td style="color:blue">${finalWidth} × ${finalHeight}</td>
+          </tr>`;
+        i++;
+      }
+    });
+
+    result += '</table>';
+    document.getElementById('results').innerHTML = result;
+  }
+</script>
+
+</body>
+</html>

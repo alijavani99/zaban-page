@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>محاسبه قیمت درب</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 20px; direction: rtl; background: #f4f4f4; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; font-size: 16px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+    .result { background: #e0ffe0; padding: 10px; margin-top: 20px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>محاسبه قیمت درب</h2>
+    
+    <label>قیمت چوب روسی</label>
+    <input id="wood" oninput="formatNumber(this)" />
+
+    <label>قیمت رویه درب HPL</label>
+    <input id="hpl" oninput="formatNumber(this)" />
+
+    <label>قیمت رویه درب CNC</label>
+    <input id="cnc" oninput="formatNumber(this)" />
+
+    <label>قیمت پرس کاری</label>
+    <input id="press" oninput="formatNumber(this)" />
+
+    <label>قیمت نجاری</label>
+    <input id="woodwork" oninput="formatNumber(this)" />
+
+    <label>قیمت هانیکام</label>
+    <input id="honeycomb" oninput="formatNumber(this)" />
+
+    <label>قیمت دور و قاب لبه درب</label>
+    <input id="border" oninput="formatNumber(this)" />
+
+    <button onclick="calculate()">محاسبه قیمت‌ها</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function formatNumber(el) {
+      let val = el.value.replace(/,/g, '');
+      if (!isNaN(val) && val !== '') {
+        el.value = Number(val).toLocaleString('en-US');
+      }
+    }
+
+    function parseNumber(val) {
+      return parseFloat(val.replace(/,/g, '')) || 0;
+    }
+
+    function calculate() {
+      const wood = parseNumber(document.getElementById('wood').value);
+      const hpl = parseNumber(document.getElementById('hpl').value);
+      const cnc = parseNumber(document.getElementById('cnc').value);
+      const press = parseNumber(document.getElementById('press').value);
+      const woodwork = parseNumber(document.getElementById('woodwork').value);
+      const honeycomb = parseNumber(document.getElementById('honeycomb').value);
+      const border = parseNumber(document.getElementById('border').value);
+
+      // درب HPL چوب ۵
+      let base_hpl5 = (wood * 0.016) + (hpl * 2) + press + woodwork + honeycomb + border;
+      let final_hpl5 = base_hpl5 * 1.35;
+
+      // درب CNC چوب ۵
+      let base_cnc5 = (wood * 0.016) + (cnc * 2) + press + woodwork + honeycomb + border;
+      let final_cnc5 = base_cnc5 * 1.35;
+
+      // درب HPL چوب ۶
+      let base_hpl6 = (wood * 0.02) + (hpl * 2) + press + woodwork + honeycomb + border;
+      let final_hpl6 = base_hpl6 * 1.35;
+
+      // درب CNC چوب ۶
+      let base_cnc6 = (wood * 0.02) + (cnc * 2) + press + woodwork + honeycomb + border;
+      let final_cnc6 = base_cnc6 * 1.35;
+
+      document.getElementById('result').innerHTML = `
+        💰 <b>قیمت درب HPL با چوب ۵:</b> ${final_hpl5.toLocaleString('en-US')} تومان<br>
+        💰 <b>قیمت درب CNC با چوب ۵:</b> ${final_cnc5.toLocaleString('en-US')} تومان<br><br>
+        💰 <b>قیمت درب HPL با چوب ۶:</b> ${final_hpl6.toLocaleString('en-US')} تومان<br>
+        💰 <b>قیمت درب CNC با چوب ۶:</b> ${final_cnc6.toLocaleString('en-US')} تومان
+      `;
+    }
+  </script>
+</body>
+</html>
